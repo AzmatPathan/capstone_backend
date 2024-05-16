@@ -1,16 +1,21 @@
-// src/index.js
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
+import express from 'express';
+import userRoutes from './routes/userRoutes.js';
+import bodyParser from 'body-parser';
 
-// Middleware
+const PORT = process.env.PORT || 5000;
+
+const app = express();
+
+app.use(bodyParser.json());
 app.use(express.json());
 
-// Routes
-const routes = require('./routes/app.js');
-app.use('/api', routes);
+//Routes
+app.use('/api/users', userRoutes);
 
-// Start the server
+//start server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+
