@@ -1,40 +1,40 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import { fetchUser, fetchUsers, createUser } from '../models/userModel.js';
-import matchPassword from '../utils/bcrypt.js';
+import { matchPassword } from '../utils/bcrypt.js';
 import generateToken from '../utils/generateToken.js';
 
 // Get all users
 const getAllUsers = asyncHandler(async (req, res) => {
-    const users = await fetchUsers();
-    return res.status(200).json(users);
+  const users = await fetchUsers();
+  return res.status(200).json(users);
 });
 
 // @desc    Auth user & get token
 // @route   POST /api/users/auth
 const authUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const user = await fetchUser(email);
+  const user = await fetchUser(email);
 
-    if (user && (await matchPassword(user.password_hash, password))) {
-        generateToken(res, user);
+  if (user && (await matchPassword(user.password_hash, password))) {
+    generateToken(res, user);
 
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        });
-    } else {
-        res.status(401);
-        throw new Error('Invalid email or password');
-    }
+    res.json({
+      _id: user._id,
+      name: user.username,
+      email: user.email,
+      role: user.role,
+    });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
+  }
 });
 
 // @desc    Register a new user
-// @route   POST /api/users
+// @route   POST /api/users/register
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password, role } = req.body;
+  const { name, email, password, role } = req.body;
 
   // Check if user already exists
   const existingUser = await fetchUser(email);
