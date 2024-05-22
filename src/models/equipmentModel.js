@@ -24,7 +24,7 @@ export const addEquipment = async (equipmentData) => {
             };
         }
 
-        
+
         await queryDatabase(
             `INSERT INTO Equipments SET ?`,
             equipmentData

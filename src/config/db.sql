@@ -35,11 +35,12 @@ CREATE TABLE Images (
 );
 
 CREATE TABLE Data_Review (
-    review_id INT PRIMARY KEY,
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
     equipment_id INT,
     reviewer_id INT,
     review_date DATETIME,
     reviewed_data TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'Pending',
     FOREIGN KEY (equipment_id) REFERENCES Equipments(equipment_id),
     FOREIGN KEY (reviewer_id) REFERENCES Users(user_id)
 );

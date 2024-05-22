@@ -4,7 +4,8 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import equipmentRoutes from './routes/equipmentRoutes.js';
-
+import reviewRoutes from './routes/reviewRoutes.js';
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
 
@@ -19,6 +20,10 @@ app.use(cookieParser());
 //Routes
 app.use('/api/users', userRoutes);
 app.use('/api/equipments', equipmentRoutes);
+app.use('/api/reviews', reviewRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 //start server
 app.listen(PORT, () => {
