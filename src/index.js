@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import equipmentRoutes from './routes/equipmentRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use('/api/users', userRoutes);
 app.use('/api/equipments', equipmentRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

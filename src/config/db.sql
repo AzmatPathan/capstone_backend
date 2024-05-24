@@ -27,7 +27,7 @@ CREATE TABLE Equipments (
 );
 
 CREATE TABLE Images (
-    image_id INT PRIMARY KEY,
+    image_id INT AUTO_INCREMENT PRIMARY KEY,
     equipment_id INT,
     image_url VARCHAR(255),
     description VARCHAR(255),
