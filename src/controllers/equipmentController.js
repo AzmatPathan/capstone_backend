@@ -5,7 +5,7 @@ import { addEquipment, getEquipmentById, updateEquipment } from '../models/equip
 
 export const createEquipment = asyncHandler(async (req, res) => {
   try {
-    const equipmentId = await addEquipment(req.body);
+    const equipmentId = await addEquipment(req);
     res.status(201).json({ message: 'Equipment added successfully', equipmentId });
   } catch (err) {
     console.error(err);

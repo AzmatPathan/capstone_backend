@@ -1,4 +1,6 @@
 import pool from '../config/db.js';
+import { publishToQueue } from '../config/rabbitmq.js';
+
 
 // Reusable function for querying the database
 const queryDatabase = async (query, values = []) => {
@@ -11,8 +13,9 @@ const queryDatabase = async (query, values = []) => {
     }
 };
 
-export const addEquipment = async (equipmentData) => {
-    const { equipment_id } = equipmentData;
+export const addEquipment = async (req) => {
+    const { equipment_id } = req.body;
+    const user_id = req.user.user_id
 
     try {
         // Check if equipment_id already exists
@@ -27,8 +30,12 @@ export const addEquipment = async (equipmentData) => {
 
         await queryDatabase(
             `INSERT INTO Equipments SET ?`,
-            equipmentData
+            req.body
         );
+
+        // Publish a message to the RabbitMQ queue
+        const message = JSON.stringify({ user_id, equipment_id });
+        await publishToQueue('userEquipmentQueue', message);
 
         return equipment_id;
     } catch (error) {

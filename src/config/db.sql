@@ -44,3 +44,11 @@ CREATE TABLE Data_Review (
     FOREIGN KEY (equipment_id) REFERENCES Equipments(equipment_id),
     FOREIGN KEY (reviewer_id) REFERENCES Users(user_id)
 );
+
+CREATE TABLE User_Equipment (
+    user_equipment_id INT auto_increment PRIMARY KEY,
+    user_id INT,
+    equipment_id INT,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (equipment_id) REFERENCES Equipments(equipment_id)
+);
