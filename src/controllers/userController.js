@@ -1,5 +1,5 @@
 import asyncHandler from '../middleware/asyncHandler.js';
-import { fetchUser, fetchUsers, createUser } from '../models/userModel.js';
+import { fetchUser, fetchUsers, lastLoginUser, createUser, deleteUserById } from '../models/userModel.js';
 import { matchPassword } from '../utils/bcrypt.js';
 import generateToken from '../utils/generateToken.js';
 
@@ -19,11 +19,15 @@ const authUser = asyncHandler(async (req, res) => {
   if (user && (await matchPassword(user.password_hash, password))) {
     generateToken(res, user);
 
+    // Update last_login field
+    await lastLoginUser(email);
+
     res.json({
-      _id: user._id,
+      _id: user.user_id,
       name: user.username,
       email: user.email,
       role: user.role,
+      last_login: new Date(),
     });
   } else {
     res.status(401);
@@ -68,5 +72,21 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
-export { authUser, getAllUsers, registerUser, logoutUser };
+// @desc    Delete user by ID
+// @route   DELETE /api/users/:id
+// @access  Admin
+const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await deleteUserById(id);
+
+  if (result.affectedRows > 0) {
+    res.json({ message: 'User deleted successfully' });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+export { authUser, getAllUsers, registerUser, logoutUser, deleteUser };
 

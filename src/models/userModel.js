@@ -16,6 +16,18 @@ const fetchUser = async (email) => {
     return rows[0];
 };
 
+// Function to update last login
+const lastLoginUser = async (email) => {
+    const [rows] = await pool.query('SELECT user_id FROM Users WHERE email = ?', [email]);
+
+    if (rows.length > 0) {
+        const userId = rows[0].user_id;
+        await pool.query('UPDATE Users SET last_login = ? WHERE user_id = ?', [new Date(), userId]);
+    } else {
+        throw new Error('User not found');
+    }
+};
+
 const createUser = async (name, email, password, role) => {
 
     try {
@@ -37,5 +49,15 @@ const createUser = async (name, email, password, role) => {
     }
 }
 
+const deleteUserById = async (userId) => {
+    try {
+        const [result] = await pool.query('DELETE FROM Users WHERE user_id = ?', [userId]);
+        return result;
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        throw error;
+    }
+};
 
-export { fetchUsers, fetchUser, createUser } 
+
+export { fetchUsers, fetchUser, lastLoginUser, createUser, deleteUserById } 
