@@ -1,5 +1,5 @@
 import asyncHandler from '../middleware/asyncHandler.js';
-import { addEquipment, getEquipmentById, updateEquipment } from '../models/equipmentModel.js';
+import { addEquipment, getEquipmentById, updateEquipment, getEquipmentDashboardData } from '../models/equipmentModel.js';
 
 
 
@@ -44,19 +44,33 @@ export const deleteEquipment = asyncHandler(async (req, res) => {
   const { equipment_id } = req.params;
 
   try {
-      const result = await deleteEquipmentById(equipment_id);
+    const result = await deleteEquipmentById(equipment_id);
 
-      if (result.affectedRows === 0) {
-          res.status(404).json({ message: 'Equipment not found' });
-          return;
-      }
+    if (result.affectedRows === 0) {
+      res.status(404).json({ message: 'Equipment not found' });
+      return;
+    }
 
-      res.status(200).json({ message: 'Equipment deleted successfully' });
+    res.status(200).json({ message: 'Equipment deleted successfully' });
   } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error deleting equipment' });
+    console.error(err);
+    res.status(500).json({ message: 'Error deleting equipment' });
   }
 });
 
+
+// @desc    Get equipment dashboard data
+// @route   GET /api/equipment/dashboard
+// @access  Private
+export const getEquipmentDashboard = asyncHandler(async (req, res) => {
+  try {
+    const equipmentDashboardData = await getEquipmentDashboardData();
+    
+    res.status(200).json({ success: true, data: equipmentDashboardData });
+  } catch (error) {
+    console.error('Error fetching equipment dashboard data:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
 
 

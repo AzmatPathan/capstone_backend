@@ -79,3 +79,28 @@ export const deleteEquipmentById = async (equipment_id) => {
         throw error;
     }
 };
+
+// Fetch equipment dashboard data
+export const getEquipmentDashboardData = async () => {
+    const query = `
+    SELECT 
+            e.equipment_id, 
+            e.barcode, 
+            u.username AS created_by, 
+            e.created_at, 
+            r.reviewer_id AS reviewed_by, 
+            r.review_date AS reviewed_at, 
+            r.status
+        FROM 
+            Equipments e
+        LEFT JOIN 
+            Data_Review r ON e.equipment_id = r.equipment_id
+		INNER JOIN 
+			user_equipment ue on ue.equipment_id = e.equipment_id
+        LEFT JOIN 
+            Users u ON ue.user_id = u.user_id
+    `;
+    const result = queryDatabase(query)
+    console.log(result)
+    return await result;
+};

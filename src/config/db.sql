@@ -23,7 +23,8 @@ CREATE TABLE Equipments (
     date DATE,
     speed DECIMAL(10,2),
     voltage DECIMAL(10,2),
-    additional_details TEXT
+    additional_details TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Images (
