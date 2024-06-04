@@ -1,5 +1,5 @@
 import express from 'express';
-import { createEquipment, getById, updateById } from '../controllers/equipmentController.js';
+import { createEquipment, getById, updateById, deleteEquipment } from '../controllers/equipmentController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -8,5 +8,6 @@ const router = express.Router();
 router.post('/', protect, createEquipment);
 router.get('/:id', getById);
 router.put('/:id', updateById)
+router.delete('/:equipment_id', protect, admin, deleteEquipment);
 
 export default router;

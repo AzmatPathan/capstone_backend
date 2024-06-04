@@ -69,3 +69,13 @@ export const updateEquipment = async (equipmentId, updateData) => {
         throw error;
     }
 };
+
+export const deleteEquipmentById = async (equipment_id) => {
+    try {
+        const result = await queryDatabase('DELETE FROM Equipments WHERE equipment_id = ?', [equipment_id]);
+        return result;
+    } catch (error) {
+        console.error('Error deleting equipment:', error);
+        throw error;
+    }
+};

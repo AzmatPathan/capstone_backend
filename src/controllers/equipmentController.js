@@ -40,5 +40,23 @@ export const updateById = asyncHandler(async (req, res) => {
 
 });
 
+export const deleteEquipment = asyncHandler(async (req, res) => {
+  const { equipment_id } = req.params;
+
+  try {
+      const result = await deleteEquipmentById(equipment_id);
+
+      if (result.affectedRows === 0) {
+          res.status(404).json({ message: 'Equipment not found' });
+          return;
+      }
+
+      res.status(200).json({ message: 'Equipment deleted successfully' });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error deleting equipment' });
+  }
+});
+
 
 
