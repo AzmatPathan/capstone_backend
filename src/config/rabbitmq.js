@@ -8,7 +8,7 @@ const connectRabbitMQ = async () => {
     try {
         connection = await amqp.connect(RABBITMQ_URL);
         channel = await connection.createChannel();
-        await channel.assertQueue('userEquipmentQueue', { durable: true });
+        await channel.assertQueue('equipmentDataQueue', { durable: true });
 
         console.log('Connected to RabbitMQ');
     } catch (error) {

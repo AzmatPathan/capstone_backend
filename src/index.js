@@ -9,6 +9,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { connectRabbitMQ, consumeQueue } from './config/rabbitmq.js';
 import { insertUserEquipment } from './controllers/userEquipmentController.js';
+import { addEquipmentDataReview } from './models/reviewModel.js';
 
 dotenv.config();
 
@@ -36,10 +37,11 @@ const startServer = async () => {
     await connectRabbitMQ();
 
     // Consume messages from the queue
-    await consumeQueue('userEquipmentQueue', async (data) => {
-     
-      const {  user_id, equipment_id  } = data;
+    await consumeQueue('equipmentDataQueue', async (data) => {
+
+      const { user_id, equipment_id, equipmentData } = data;
       await insertUserEquipment(user_id, equipment_id);
+      await addEquipmentDataReview(equipmentData);
     });
 
     // Start the Express server

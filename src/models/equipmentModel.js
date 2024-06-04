@@ -34,8 +34,8 @@ export const addEquipment = async (req) => {
         );
 
         // Publish a message to the RabbitMQ queue
-        const message = JSON.stringify({ user_id, equipment_id });
-        await publishToQueue('userEquipmentQueue', message);
+        const message = JSON.stringify({ user_id, equipment_id, equipmentData: req.body });
+        await publishToQueue('equipmentDataQueue', message);
 
         return equipment_id;
     } catch (error) {

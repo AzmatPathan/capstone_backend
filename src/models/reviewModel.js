@@ -1,5 +1,4 @@
 import pool from '../config/db.js';
-import { addEquipment } from './equipmentModel.js';
 
 // Reusable function for querying the database
 const queryDatabase = async (query, values = []) => {
@@ -14,15 +13,8 @@ const queryDatabase = async (query, values = []) => {
 
 
 export const addEquipmentDataReview = async (equipmentData) => {
-    const connection = await pool.getConnection();
+    console.log(equipmentData)
     try {
-        await connection.beginTransaction();
-
-        // Add the equipment
-        await addEquipment(equipmentData);
-
-        console.log(equipmentData);
-
         // Create data review entry with status 'Pending'
         await queryDatabase(
             `INSERT INTO Data_Review (equipment_id, reviewer_id, review_date, reviewed_data, status)
@@ -30,18 +22,13 @@ export const addEquipmentDataReview = async (equipmentData) => {
             [equipmentData.equipment_id, null, JSON.stringify(equipmentData)]
         );
 
-        await connection.commit();
-
         return {
             success: true,
             equipment_id: equipmentData.equipment_id
         };
     } catch (error) {
-        await connection.rollback();
-        console.error('Error adding equipment:', error);
+        console.error('Error adding equipment data review:', error);
         throw error;
-    } finally {
-        connection.release();
     }
 };
 
