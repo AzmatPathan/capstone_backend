@@ -45,12 +45,16 @@ router.post('/', (req, res) => {
     const imageUrl = `/uploads/${req.file.filename}`;
 
     try {
-
       // Save the image details to the database
       const result = await db.query('INSERT INTO Images (equipment_id, image_url, description) VALUES (?, ?, ?)', [equipment_id, imageUrl, description]);
       res.status(200).send({
         message: 'Image uploaded and saved to database',
         imageId: result.insertId,
+        // Adding temporary dummy data for Front-End Devs for image processing
+        imageData: {
+          modelNumber: "DUMMY-6234545",
+          serialNumber: "DUMMY-1239864",
+        }
       });
     } catch (error) {
       console.error('Error saving image to database:', error);
