@@ -26,4 +26,5 @@ npm start
 #       Please create key file from google project
 #       enable cloud vision API. Paste you keys to
 #       file keys.json.
+#       localhost:5000/api/clouds/getImageTranslation?ImageName=IMG_3035.JPG
 
