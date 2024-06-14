@@ -5,7 +5,6 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // Define routes
-router.get('/dashboard', getEquipmentDashboard);
 router.post('/', protect, createEquipment);
 router.get('/:id', getById);
 router.put('/:id', updateById)

@@ -60,7 +60,7 @@ export const deleteEquipment = asyncHandler(async (req, res) => {
 
 
 // @desc    Get equipment dashboard data
-// @route   GET /api/equipment/dashboard
+// @route   GET /api/dashboard
 // @access  Private
 export const getEquipmentDashboard = asyncHandler(async (req, res) => {
   try {
