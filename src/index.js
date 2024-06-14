@@ -7,6 +7,7 @@ import equipmentRoutes from './routes/equipmentRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import cloudRoutes from './routes/cloudRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { connectRabbitMQ, consumeQueue } from './config/rabbitmq.js';
 import { insertUserEquipment } from './controllers/userEquipmentController.js';
@@ -28,6 +29,7 @@ app.use('/api/equipments', equipmentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/clouds', cloudRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
