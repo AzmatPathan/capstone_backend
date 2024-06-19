@@ -1,5 +1,5 @@
 import express from 'express';
-import { addEquipmentWithReview, assignReviewToAdmin, updateReviewStatusController, getAllReviewsController } from '../controllers/reviewController.js';
+import { addEquipmentWithReview, assignReviewToAdmin, getAllReviewsController, getReviewDetailsController, updateReviewStatusController } from '../controllers/reviewController.js';
 
 const router = express.Router();
 
@@ -10,8 +10,10 @@ router.post('/add-equipment', addEquipmentWithReview);
 router.post('/assign-review', assignReviewToAdmin);
 
 // Route to update the review status
-router.post('/update-review-status', updateReviewStatusController);
+router.put('/:id/status', updateReviewStatusController);
 
 router.get('/', getAllReviewsController);
+
+router.get('/:id', getReviewDetailsController);
 
 export default router;
