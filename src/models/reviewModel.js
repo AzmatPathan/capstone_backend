@@ -89,3 +89,28 @@ export const updateReviewStatus = async (reviewId, adminId, status) => {
         throw error;
     }
 }
+
+export const getAllReviews = async () => {
+    const query = `
+    SELECT 
+        e.equipment_id, 
+        e.barcode, 
+        u.username AS created_by, 
+        e.created_at, 
+        r.review_id AS review_id,
+        r.review_date AS reviewed_at, 
+        r.status
+    FROM 
+        Equipments e
+    LEFT JOIN 
+        Data_Review r ON e.equipment_id = r.equipment_id
+    INNER JOIN 
+        user_equipment ue on ue.equipment_id = e.equipment_id
+    LEFT JOIN 
+        Users u ON ue.user_id = u.user_id
+    order by r.review_date ,e.created_at
+`;
+    const result = queryDatabase(query)
+    console.log(result)
+    return await result;
+};

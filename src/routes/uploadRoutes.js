@@ -41,8 +41,8 @@ router.post('/', (req, res) => {
       return;
     }
 
-    const { equipment_id, description } = req.body;
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const { equipment_id, description,image } = req.body;
+    const imageUrl = `/uploads/${image}`;
 
     try {
       // Save the image details to the database

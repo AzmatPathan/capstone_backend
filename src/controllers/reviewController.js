@@ -1,4 +1,4 @@
-import { addEquipmentDataReview, assignReview, updateReviewStatus } from '../models/reviewModel.js';
+import { addEquipmentDataReview, assignReview, getAllReviews } from '../models/reviewModel.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
 
@@ -48,5 +48,19 @@ export const updateReviewStatusController = asyncHandler(async (req, res) => {
             message: 'Error updating review status.',
             error: error.message
         });
+    }
+});
+
+
+// @desc    Get all reviews
+// @route   GET /api/reviews
+// @access  Private
+export const getAllReviewsController = asyncHandler(async (req, res) => {
+    try {
+        const reviews = await getAllReviews();
+        res.status(200).json({ success: true, data: reviews });
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
