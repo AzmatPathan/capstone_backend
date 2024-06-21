@@ -41,7 +41,7 @@ router.post('/', (req, res) => {
       return;
     }
 
-    const { equipment_id, description,image } = req.body;
+    const { equipment_id, description, image } = req.body;
     const imageUrl = `/uploads/${image}`;
 
     try {
@@ -62,5 +62,40 @@ router.post('/', (req, res) => {
     }
   });
 });
+
+const getAllUploadedImages = async (req, res) => {
+  try {
+    const images = await getAllImages();
+    res.status(200).send(images);
+  } catch (error) {
+    console.error('Error retrieving images:', error);
+    res.status(500).send('Internal server error');
+  }
+};
+
+const getAllImages = async () => {
+  try {
+    const [results] = await db.query(`
+     SELECT 
+    Images.*, 
+    Equipments.created_at AS equipment_created_at,
+    Data_Review.status AS review_status
+FROM 
+    Images
+JOIN 
+    Equipments ON Images.equipment_id = Equipments.equipment_id
+LEFT JOIN 
+    Data_Review ON Images.equipment_id = Data_Review.equipment_id;
+
+    `);
+    return results;
+  } catch (error) {
+    throw new Error('Database query failed');
+  }
+};
+
+router.get('/', getAllUploadedImages);
+
+
 
 export default router;
