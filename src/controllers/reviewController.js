@@ -24,10 +24,15 @@ export const addEquipmentWithReview = asyncHandler(async (req, res) => {
 export const assignReviewToAdmin = asyncHandler(async (req, res) => {
     try {
         const { reviewId, adminId } = req.body;
-        const result = await assignReview(reviewId, adminId);
+        const result = await assignReview(reviewId, adminId, res);
 
-        res.status(200).json(result);
+        res.status(200).json({
+            success: true,
+            message: 'Review assigned successfully',
+            data: result
+        });
     } catch (error) {
+        console.error('Error assigning review:', error);
         res.status(500).json({
             success: false,
             message: 'Error assigning review.',
@@ -41,11 +46,11 @@ export const assignReviewToAdmin = asyncHandler(async (req, res) => {
  * @access Private (Assumed to be authenticated)
  */
 export const updateReviewStatusController = asyncHandler(async (req, res) => {
-    const { reviewId } = req.params;
+    const { id } = req.params;
     const { adminId, status } = req.body;
 
     try {
-        const result = await updateReviewStatus(reviewId, adminId, status);
+        const result = await updateReviewStatus(id, adminId, status);
 
         res.status(200).json(result);
     } catch (error) {

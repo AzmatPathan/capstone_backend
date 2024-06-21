@@ -32,8 +32,7 @@ export const addEquipmentDataReview = async (req, res) => {
     }
 };
 
-export const assignReview = async (req, res) => {
-    const { reviewId, adminId } = req.body;
+export const assignReview = async (reviewId, adminId, res) => {
     try {
         const result = await queryDatabase(
             `UPDATE Data_Review SET reviewer_id = ? WHERE review_id = ? AND reviewer_id IS NULL`,
@@ -86,22 +85,27 @@ export const updateReviewStatus = async (reviewId, adminId, status) => {
 export const getAllReviews = async (req, res) => {
     const query = `
         SELECT 
-            e.equipment_id, 
-            e.barcode, 
-            u.username AS created_by, 
-            e.created_at, 
-            r.review_id AS review_id,
-            r.review_date AS reviewed_at, 
-            r.status
-        FROM 
-            Equipments e
-        LEFT JOIN 
-            Data_Review r ON e.equipment_id = r.equipment_id
-        INNER JOIN 
-            User_Equipment ue ON ue.equipment_id = e.equipment_id
-        LEFT JOIN 
-            Users u ON ue.user_id = u.user_id
-        ORDER BY r.review_date, e.created_at
+    e.equipment_id, 
+    e.barcode, 
+    u_created.username AS created_by, 
+    e.created_at, 
+    r.review_id AS review_id,
+    r.review_date AS reviewed_at, 
+    r.status,
+    u_reviewer.username AS reviewed_by
+FROM 
+    Equipments e
+LEFT JOIN 
+    Data_Review r ON e.equipment_id = r.equipment_id
+LEFT JOIN 
+    User_Equipment ue ON e.equipment_id = ue.equipment_id
+LEFT JOIN 
+    Users u_created ON ue.user_id = u_created.user_id
+LEFT JOIN 
+    Users u_reviewer ON r.reviewer_id = u_reviewer.user_id
+ORDER BY 
+    r.review_date, e.created_at;
+
     `;
 
     try {
