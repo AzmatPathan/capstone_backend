@@ -71,6 +71,7 @@ const startServer = async () => {
     await consumeQueue('equipmentDataQueue', async (data) => {
       const { user_id, equipment_id, equipmentData } = data;
       await insertUserEquipment(user_id, equipment_id);
+      console.log(equipmentData)
       await addEquipmentDataReview(equipmentData);
     });
 

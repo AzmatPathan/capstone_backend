@@ -11,24 +11,20 @@ const queryDatabase = async (query, values = []) => {
     }
 };
 
-export const addEquipmentDataReview = async (req, res) => {
-    const equipmentData = req.body;
-    console.log(equipmentData);
+export const addEquipmentDataReview = async (equipmentData) => {
     try {
-        // Create data review entry with status 'Pending'
+        const equipment_id = parseInt(equipmentData.equipment_id);
         await queryDatabase(
             `INSERT INTO Data_Review (equipment_id, reviewer_id, review_date, reviewed_data, status)
-            VALUES (?, ?, NOW(), ?, 'Pending')`,
-            [equipmentData.equipment_id, null, JSON.stringify(equipmentData)]
+            VALUES (?, ?, ?, ?, 'Pending')`,
+            [equipment_id, null, null, JSON.stringify(equipmentData)]
         );
 
-        res.json({
-            success: true,
-            equipment_id: equipmentData.equipment_id
-        });
+        return { success: true, equipment_id: equipment_id };
+
     } catch (error) {
         console.error('Error adding equipment data review:', error);
-        res.status(500).json({ message: 'Server error' });
+        throw new Error('Failed to add equipment data review');
     }
 };
 
@@ -82,6 +78,7 @@ export const updateReviewStatus = async (reviewId, adminId, status) => {
         throw error; // Re-throw the error to propagate it upwards
     }
 };
+
 export const getAllReviews = async (req, res) => {
     const query = `
         SELECT 
