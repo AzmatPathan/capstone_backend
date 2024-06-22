@@ -12,12 +12,39 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { connectRabbitMQ, consumeQueue } from './config/rabbitmq.js';
 import { insertUserEquipment } from './controllers/userEquipmentController.js';
 import { addEquipmentDataReview } from './models/reviewModel.js';
+import swaggerGenerator from 'express-swagger-generator';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+const PORT = process.env.PORT || 5000;
 const app = express();
+
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      description: 'A brief description of your API',
+      title: 'Your API Title',
+      version: '1.0.0',
+    },
+    host: `localhost:${PORT}`,
+    basePath: '/',
+    produces: [
+      "application/json",
+      "application/xml"
+    ],
+    schemes: ['http', 'https']
+  },
+  basedir: __dirname, // App absolute path
+  files: ['./routes/*.js'] // Path to the API handle folder
+};
+
+const expressSwagger = swaggerGenerator(app);
+expressSwagger(swaggerOptions);
 
 app.use(bodyParser.json());
 app.use(express.json());
@@ -42,7 +69,6 @@ const startServer = async () => {
 
     // Consume messages from the queue
     await consumeQueue('equipmentDataQueue', async (data) => {
-
       const { user_id, equipment_id, equipmentData } = data;
       await insertUserEquipment(user_id, equipment_id);
       await addEquipmentDataReview(equipmentData);
