@@ -122,7 +122,7 @@ export const exportReviewData = async (req, res) => {
         // Export data to CSV using the utility function
         await exportToCSV(reviews, csvFields, 'reviews.csv', res);
     } catch (error) {
-        console.error('Error exporting equipment data:', error);
-        res.status(500).json({ message: 'Failed to export equipment data as CSV' });
+        console.error('Error exporting review data:', error);
+        res.status(500).json({ message: 'Failed to export review data as CSV' });
     }
 };

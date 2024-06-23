@@ -1,6 +1,7 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import { fetchUser, fetchUsers, lastLoginUser, createUser, deleteUserById } from '../models/userModel.js';
 import { matchPassword } from '../utils/bcrypt.js';
+import { exportToCSV } from '../utils/exportToCsv.js';
 import generateToken from '../utils/generateToken.js';
 
 // Get all users
@@ -87,6 +88,33 @@ const deleteUser = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
+
+// @desc    Export all equipment data
+// @route   GET /api/dashboard/export/user
+// @access  Public
+export const exportUserData = async (req, res) => {
+  try {
+      // Fetch equipment data from your service
+      const users = await fetchUsers();
+
+      // Define CSV fields based on your equipment data structure
+      const csvFields = [
+        { id: 'user_id', title: 'User ID' },
+        { id: 'username', title: 'Username' },
+        { id: 'email', title: 'Email' },
+        { id: 'role', title: 'Role' },
+        { id: 'created_at', title: 'Created At' },
+        { id: 'last_login', title: 'Last Login' },
+        { id: 'is_active', title: 'Is Active' }
+      ];
+
+      // Export data to CSV using the utility function
+      await exportToCSV(users, csvFields, 'users.csv', res);
+  } catch (error) {
+      console.error('Error exporting user data:', error);
+      res.status(500).json({ message: 'Failed to export user data as CSV' });
+  }
+};
 
 export { authUser, getAllUsers, registerUser, logoutUser, deleteUser };
 
