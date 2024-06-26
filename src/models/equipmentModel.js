@@ -46,7 +46,7 @@ export const addEquipment = async (req) => {
 
 export const getEquipmentById = async (equipmentId) => {
     try {
-        const rows = await queryDatabase('SELECT * FROM Equipments WHERE equipment_id = ?', [equipmentId]);
+        const rows = await queryDatabase('SELECT e.*,dr.status FROM Equipments e INNER JOIN Data_Review dr on dr.equipment_id = e.equipment_id WHERE e.equipment_id = ?', [equipmentId]);
         return rows.length > 0 ? rows[0] : null;
     } catch (error) {
         console.error('Error fetching equipment:', error);
