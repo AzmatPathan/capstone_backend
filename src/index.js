@@ -27,8 +27,8 @@ const app = express();
 const swaggerOptions = {
   swaggerDefinition: {
     info: {
-      description: 'A brief description of your API',
-      title: 'Your API Title',
+      description: 'APIs to manage the Dashboard Microservice',
+      title: 'Telus ITMS',
       version: '1.0.0',
     },
     host: `localhost:${PORT}`,
@@ -37,7 +37,7 @@ const swaggerOptions = {
       "application/json",
       "application/xml"
     ],
-    schemes: ['http', 'https']
+    schemes: ['http']
   },
   basedir: __dirname, // App absolute path
   files: ['./routes/*.js'] // Path to the API handle folder

@@ -34,6 +34,39 @@ function fileFilter(req, file, cb) {
 const upload = multer({ storage, fileFilter });
 const uploadSingleImage = upload.single('image');
 
+
+/**
+ * @typedef ImageUploadResponse
+ * @property {string} message
+ * @property {integer} imageId
+ * @property {object} imageData
+ * @property {string} imageData.modelNumber
+ * @property {string} imageData.serialNumber
+ */
+
+/**
+ * @typedef Image
+ * @property {integer} id
+ * @property {integer} equipment_id
+ * @property {string} image_url
+ * @property {string} description
+ * @property {string} created_at
+ * @property {string} equipment_created_at
+ * @property {string} review_status
+ */
+
+/**
+ * @route POST /api/images
+ * @group Images - Operations about image upload
+ * @param {file} image.formData.required - The image file to upload
+ * @param {integer} equipment_id.formData.required - The ID of the equipment associated with the image
+ * @param {string} description.formData - The description of the image
+ * @produces application/json
+ * @returns {ImageUploadResponse.model} 200 - Image uploaded and saved to database
+ * @returns {Error} 400 - Bad request
+ * @returns {Error} 500 - Internal server error
+ * @consumes multipart/form-data
+ */
 router.post('/', (req, res) => {
   uploadSingleImage(req, res, async function (err) {
     if (err) {
@@ -94,6 +127,13 @@ LEFT JOIN
   }
 };
 
+/**
+ * @route GET /api/images
+ * @group Images - Operations about image retrieval
+ * @summary Retrieve all uploaded images
+ * @returns {Array.<Image>} 200 - An array of uploaded images
+ * @returns {Error} 500 - Internal server error
+ */
 router.get('/', getAllUploadedImages);
 
 
