@@ -1,5 +1,11 @@
 import express from 'express';
-import { addEquipmentWithReview, assignReviewToAdmin, getAllReviewsController, getReviewDetailsController, updateReviewStatusController } from '../controllers/reviewController.js';
+import {
+  addEquipmentWithReview,
+  assignReviewToAdmin,
+  getAllReviewsController,
+  getReviewDetailsController,
+  updateReviewStatusController
+} from '../controllers/reviewController.js';
 
 const router = express.Router();
 
@@ -31,6 +37,7 @@ const router = express.Router();
  * @route POST /api/add-equipment
  * @group Equipment - Operations about equipment
  * @param {EquipmentData.model} equipmentData.body.required - Equipment data
+ * @summary Add new equipment and create a review
  * @returns {AddEquipmentResponse.model} 201 - Equipment added and review created successfully
  * @returns {Error}  500 - Error adding equipment and creating review
  */
@@ -52,6 +59,7 @@ router.post('/add-equipment', addEquipmentWithReview);
  * @route POST /api/assign-review
  * @group Review - Operations about review
  * @param {AssignReviewRequest.model} request.body.required - Review assignment data
+ * @summary Assign a review to an admin
  * @returns {AssignReviewResponse.model} 200 - Review assigned successfully
  * @returns {Error} 500 - Server error
  */
@@ -74,11 +82,11 @@ router.post('/assign-review', assignReviewToAdmin);
  * @group Review - Operations about review
  * @param {integer} id.path.required - Review ID
  * @param {UpdateReviewStatusRequest.model} request.body.required - Review status update data
+ * @summary Update review status
  * @returns {UpdateReviewStatusResponse.model} 200 - Review status updated successfully
  * @returns {Error} 500 - Server error
  */
 router.put('/:id/status', updateReviewStatusController);
-
 
 /**
  * @typedef ReviewData
@@ -101,12 +109,11 @@ router.put('/:id/status', updateReviewStatusController);
 /**
  * @route GET /api/reviews
  * @group Review - Operations about review
- * @access Private (Assumed to be authenticated)
+ * @summary Get all reviews
  * @returns {GetAllReviewsResponse.model} 200 - Successful response - array of reviews
  * @returns {Error} 500 - Server error
  */
 router.get('/', getAllReviewsController);
-
 
 /**
  * @typedef ReviewDetails
@@ -140,7 +147,7 @@ router.get('/', getAllReviewsController);
  * @route GET /api/reviews/{id}
  * @group Review - Operations about review
  * @param {integer} id.path.required - Review ID
- * @access Private (Assumed to be authenticated)
+ * @summary Get review details by ID
  * @returns {GetReviewDetailsResponse.model} 200 - Successful response - detailed review information
  * @returns {Error} 404 - Review not found
  * @returns {Error} 500 - Server error

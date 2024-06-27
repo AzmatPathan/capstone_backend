@@ -18,36 +18,40 @@ const router = express.Router();
 /**
  * @route GET /api/users
  * @group User - Operations about user
+ * @summary Get a list of all users
  * @returns {Array.<User>} 200 - A list of users
- * @returns {Error}  404 - Not Found
- * @returns {Error}  500 - Server Error
+ * @returns {Error} 404 - Not Found
+ * @returns {Error} 500 - Server Error
  */
 router.route('/').get(getAllUsers);
 
 /**
  * @route POST /api/users/auth
  * @group User - Operations about user
+ * @summary Authenticate a user
  * @returns {object} 200 - Authenticated user
- * @returns {Error}  404 - Not Found
- * @returns {Error}  500 - Server Error
+ * @returns {Error} 404 - Not Found
+ * @returns {Error} 500 - Server Error
  */
 router.post('/auth', authUser);
 
 /**
  * @route POST /api/users/register
  * @group User - Operations about user
+ * @summary Register a new user
  * @returns {object} 201 - Registered user
- * @returns {Error}  409 - Conflict
- * @returns {Error}  500 - Server Error
+ * @returns {Error} 409 - Conflict
+ * @returns {Error} 500 - Server Error
  */
 router.post('/register', registerUser);
 
 /**
  * @route POST /api/users/logout
  * @group User - Operations about user
+ * @summary Log out a user
  * @returns {object} 200 - User logged out
- * @returns {Error}  404 - Not Found
- * @returns {Error}  500 - Server Error
+ * @returns {Error} 404 - Not Found
+ * @returns {Error} 500 - Server Error
  */
 router.post('/logout', logoutUser);
 
@@ -55,9 +59,10 @@ router.post('/logout', logoutUser);
  * @route DELETE /api/users/{id}
  * @group User - Operations about user
  * @param {integer} id.path.required - user ID
+ * @summary Delete a user by ID
  * @returns {object} 200 - User deleted
- * @returns {Error}  404 - Not Found
- * @returns {Error}  500 - Server Error
+ * @returns {Error} 404 - Not Found
+ * @returns {Error} 500 - Server Error
  */
 router.delete('/:id', admin, deleteUser);
 

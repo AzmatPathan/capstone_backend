@@ -62,6 +62,7 @@
  * @route POST /api/equipment
  * @group Equipment - Operations about equipment
  * @param {Equipment.model} request.body.required - Equipment object to create
+ * @summary Create new equipment
  * @security JWT
  * @returns {EquipmentIdResponse.model} 201 - Equipment added successfully
  * @returns {ErrorResponse.model} 500 - Error adding equipment
@@ -71,6 +72,7 @@
  * @route GET /api/equipment/{id}
  * @group Equipment - Operations about equipment
  * @param {integer} id.path.required - Equipment ID
+ * @summary Get equipment details by ID
  * @security JWT
  * @returns {Equipment.model} 200 - Successful response - equipment details
  * @returns {ErrorResponse.model} 500 - Failed to fetch equipment
@@ -81,6 +83,7 @@
  * @group Equipment - Operations about equipment
  * @param {integer} id.path.required - Equipment ID
  * @param {Equipment.model} request.body.required - Updated equipment data
+ * @summary Update equipment by ID
  * @security JWT
  * @returns {EquipmentUpdateResponse.model} 200 - Equipment updated successfully
  * @returns {ErrorResponse.model} 500 - Failed to update equipment
@@ -90,6 +93,7 @@
  * @route DELETE /api/equipment/{equipment_id}
  * @group Equipment - Operations about equipment
  * @param {integer} equipment_id.path.required - Equipment ID to delete
+ * @summary Delete equipment by ID
  * @security JWT
  * @returns {ErrorResponse.model} 404 - Equipment not found
  * @returns {ErrorResponse.model} 200 - Equipment deleted successfully
@@ -98,7 +102,7 @@
 /**
  * @route GET /api/dashboard
  * @group Equipment - Operations about equipment
- * @desc Get equipment dashboard data
+ * @summary Get equipment dashboard data
  * @security JWT
  * @returns {EquipmentDashboardResponse.model} 200 - Successful response - array of equipment dashboard data
  * @returns {ErrorResponse.model} 500 - Internal server error
@@ -107,7 +111,7 @@
 /**
  * @route GET /api/equipment/export
  * @group Equipment - Operations about equipment
- * @desc Export all equipment data as CSV
+ * @summary Export all equipment data as CSV
  * @returns {ErrorResponse.model} 500 - Failed to export equipment data as CSV
  */
 
@@ -115,6 +119,7 @@
  * @route GET /api/reviews/:id
  * @group Review - Operations about review
  * @param {integer} id.path.required - Review ID
+ * @summary Get review details by review ID
  * @security JWT
  * @returns {GetReviewDetailsResponse.model} 200 - Successful response - detailed review information
  * @returns {ErrorResponse.model} 404 - Review not found
@@ -124,7 +129,7 @@
 /**
  * @route GET /api/reviews
  * @group Review - Operations about review
- * @desc Get all reviews
+ * @summary Get all reviews
  * @security JWT
  * @returns {GetAllReviewsResponse.model} 200 - Successful response - array of reviews
  * @returns {ErrorResponse.model} 500 - Internal server error
@@ -134,6 +139,7 @@
  * @route POST /api/assign-review
  * @group Review - Operations about review
  * @param {AssignReviewRequest.model} request.body.required - Review assignment data
+ * @summary Assign a review
  * @security JWT
  * @returns {AssignReviewResponse.model} 200 - Review assigned successfully
  * @returns {ErrorResponse.model} 500 - Error assigning review
@@ -144,6 +150,7 @@
  * @group Review - Operations about review
  * @param {integer} id.path.required - Review ID
  * @param {UpdateReviewStatusRequest.model} request.body.required - Review status update data
+ * @summary Update review status by ID
  * @security JWT
  * @returns {UpdateReviewStatusResponse.model} 200 - Review status updated successfully
  * @returns {ErrorResponse.model} 500 - Error updating review status
@@ -158,9 +165,7 @@ const router = express.Router();
 // Define routes
 router.post('/', protect, createEquipment);
 router.get('/:id', protect, getById);
-router.put('/:id', protect, updateById)
-
+router.put('/:id', protect, updateById);
 router.delete('/:equipment_id', protect, admin, deleteEquipment);
-
 
 export default router;
