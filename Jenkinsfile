@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_HUB_CREDENTIALS = 'dockerhub-creds' // Docker Hub credentials ID
-        GCP_CREDENTIALS = 'gcr-credentials' // GCP service account credentials ID
+        GCP_CREDENTIALS = 'gcr-credentials-file' // File credentials ID for GCP service account
         GCP_PROJECT_ID = 'capstone-430018' // Your GCP project ID
         GKE_CLUSTER_NAME = 'jenkins-cluster-1' // Your GKE cluster name
         GKE_CLUSTER_REGION = 'us-central1' // Your GKE cluster region
