@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_HUB_CREDENTIALS = 'dockerhub-creds' // Docker Hub credentials ID
+        KUBERNETES_CREDENTIALS = 'kubernetes-server' // Kubernetes credentials ID
     }
     stages {
         stage('Checkout') {
@@ -25,6 +26,26 @@ pipeline {
                         app.push("${env.BUILD_ID}")
                         app.push("latest")
                     }
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Apply the deployment and service configurations
+                    sh "kubectl apply -f backend-deployment.yaml"
+                    sh "kubectl apply -f backend-service.yaml"
+                }
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    // Check the deployment status
+                    sh "kubectl rollout status deployment/backend-deployment"
+                    
+                    // Check the service status
+                    sh "kubectl get services backend-service"
                 }
             }
         }
