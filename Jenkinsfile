@@ -46,6 +46,18 @@ pipeline {
                 }
             }
         }
+        stage('Create Namespace') {
+            steps {
+                script {
+                    // Create namespace if it doesn't exist
+                    sh """
+                    if ! kubectl get namespace ${K8S_NAMESPACE}; then
+                        kubectl create namespace ${K8S_NAMESPACE}
+                    fi
+                    """
+                }
+            }
+        }
         stage('Deploy to Kubernetes') {
             steps {
                 script {
