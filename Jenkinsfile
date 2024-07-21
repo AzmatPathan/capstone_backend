@@ -33,8 +33,8 @@ pipeline {
             steps {
                 script {
                     // Apply the deployment and service configurations
-                    sh "sudo kubectl apply -f backend-deployment.yaml"
-                    sh "sudo kubectl apply -f backend-service.yaml"
+                    sh "kubectl apply -f backend-deployment.yaml"
+                    sh "kubectl apply -f backend-service.yaml"
                 }
             }
         }
@@ -42,10 +42,10 @@ pipeline {
             steps {
                 script {
                     // Check the deployment status
-                    sh "sudo kubectl rollout status deployment/backend-deployment"
+                    sh "kubectl rollout status deployment/backend-deployment"
                     
                     // Check the service status
-                    sh "sudo kubectl get services backend-service"
+                    sh "kubectl get services backend-service"
                 }
             }
         }
