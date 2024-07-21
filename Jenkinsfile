@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     // Build Docker image
-                    app = docker.build("your-dockerhub-repo/backend:${env.BUILD_ID}")
+                    app = docker.build("azmatpathan/backend:${env.BUILD_ID}")
                 }
             }
         }
