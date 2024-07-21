@@ -29,24 +29,23 @@ pipeline {
                 }
             }
         }
-         stage('Deploy to Kubernetes') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Use Kubernetes credentials
-                    withKubeConfig([credentialsId: "${KUBERNETES_CREDENTIALS}"]) {
-                        sh "kubectl apply -f backend-deployment.yaml"
-                        sh "kubectl apply -f backend-service.yaml"
-                    }
+                    // Apply the deployment and service configurations
+                    sh "kubectl apply -f backend-deployment.yaml"
+                    sh "kubectl apply -f backend-service.yaml"
                 }
             }
         }
         stage('Verify Deployment') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: "${KUBERNETES_CREDENTIALS}"]) {
-                        sh "kubectl rollout status deployment/backend-deployment"
-                        sh "kubectl get services backend-service"
-                    }
+                    // Check the deployment status
+                    sh "kubectl rollout status deployment/backend-deployment"
+                    
+                    // Check the service status
+                    sh "kubectl get services backend-service"
                 }
             }
         }
