@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_HUB_CREDENTIALS = 'dockerhub-creds' // Docker Hub credentials ID
-        KUBERNETES_CREDENTIALS = 'kubernetes-server' // Kubernetes credentials ID
+        KUBERNETES_CREDENTIALS = 'default-service-account' // Kubernetes credentials ID
     }
     stages {
         stage('Checkout') {
