@@ -19,22 +19,24 @@ pipeline {
         stage('Build Backend Docker Image') {
             steps {
                 script {
-                    // Build Docker image
-                    app = docker.build("azmatpathan/backend:${env.BUILD_ID}", "docker/backend")
+                    // Build Docker image with explicit Dockerfile path
+                    app = docker.build("azmatpathan/backend:${env.BUILD_ID}", "-f docker/backend/Dockerfile .")
                 }
             }
         }
         stage('Build MySQL Docker Image') {
             steps {
                 script {
-                    sh 'cd docker/mysql && docker build -t my-mysql:latest .'
+                    // Build Docker image for MySQL
+                    sh 'docker build -t my-mysql:latest docker/mysql'
                 }
             }
         }
         stage('Build RabbitMQ Docker Image') {
             steps {
                 script {
-                    sh 'cd docker/rabbitmq && docker build -t my-rabbitmq:latest .'
+                    // Build Docker image for RabbitMQ
+                    sh 'docker build -t my-rabbitmq:latest docker/rabbitmq'
                 }
             }
         }
@@ -52,16 +54,16 @@ pipeline {
         stage('Push MySQL Docker Image') {
             steps {
                 script {
-                    sh 'docker tag my-mysql:latest gcr.io/capstone-430018/my-mysql:latest'
-                    sh 'docker push gcr.io/capstone-430018/my-mysql:latest'
+                    sh 'docker tag my-mysql:latest ${MYSQL_IMAGE}'
+                    sh 'docker push ${MYSQL_IMAGE}'
                 }
             }
         }
         stage('Push RabbitMQ Docker Image') {
             steps {
                 script {
-                    sh 'docker tag my-rabbitmq:latest gcr.io/capstone-430018/my-rabbitmq:latest'
-                    sh 'docker push gcr.io/capstone-430018/my-rabbitmq:latest'
+                    sh 'docker tag my-rabbitmq:latest ${RABBITMQ_IMAGE}'
+                    sh 'docker push ${RABBITMQ_IMAGE}'
                 }
             }
         }
@@ -82,9 +84,7 @@ pipeline {
                 script {
                     // Create namespace if it doesn't exist
                     sh """
-                    if ! kubectl get namespace ${K8S_NAMESPACE}; then
-                        kubectl create namespace ${K8S_NAMESPACE}
-                    fi
+                    kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}
                     """
                 }
             }
@@ -92,7 +92,7 @@ pipeline {
         stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
-                    // Apply the backend deployment and service configurations
+                    // Apply backend deployment and service configurations
                     sh "kubectl apply -f k8s/backend/backend-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl apply -f k8s/backend/backend-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
@@ -101,7 +101,7 @@ pipeline {
         stage('Deploy MySQL to Kubernetes') {
             steps {
                 script {
-                    // Apply the MySQL deployment and service configurations
+                    // Apply MySQL deployment and service configurations
                     sh "kubectl apply -f k8s/mysql/mysql-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl apply -f k8s/mysql/mysql-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
@@ -110,7 +110,7 @@ pipeline {
         stage('Deploy RabbitMQ to Kubernetes') {
             steps {
                 script {
-                    // Apply the RabbitMQ deployment and service configurations
+                    // Apply RabbitMQ deployment and service configurations
                     sh "kubectl apply -f k8s/rabbitmq/rabbitmq-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl apply -f k8s/rabbitmq/rabbitmq-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
@@ -119,12 +119,12 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 script {
-                    // Check the deployment status
+                    // Check the deployment and service statuses
                     sh "kubectl rollout status deployment/backend --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/rabbitmq --namespace=${K8S_NAMESPACE}"
                     
-                    // Check the service status
+                    // Check service status
                     sh "kubectl get services backend-service --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services rabbitmq --namespace=${K8S_NAMESPACE}"
