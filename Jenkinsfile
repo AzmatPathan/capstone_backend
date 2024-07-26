@@ -131,7 +131,7 @@ pipeline {
             steps {
                 script {
                     // Check the deployment and service statuses
-                    sh "kubectl rollout status deployment/backend --namespace=${K8S_NAMESPACE}"
+                    sh "kubectl rollout status deployment/backend-deployment --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/rabbitmq --namespace=${K8S_NAMESPACE}"
                     
