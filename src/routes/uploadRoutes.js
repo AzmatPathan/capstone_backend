@@ -75,6 +75,7 @@ router.post('/', (req, res) => {
     }
 
     const { equipment_id, description, image } = req.body;
+    console.log(req.body)
     const imageUrl = `/uploads/${image}`;
 
     try {

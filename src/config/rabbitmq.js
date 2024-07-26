@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 
-const RABBITMQ_URL = 'amqp://localhost'; // RabbitMQ server URL
+const RABBITMQ_URL = 'amqp://rabbitmq'; // RabbitMQ service name in Kubernetes
 
 let connection, channel;
 
