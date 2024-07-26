@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     // Build Docker image
-                    app = docker.build("azmatpathan/backend:${env.BUILD_ID}")
+                    app = docker.build("azmatpathan/backend:${env.BUILD_ID}", "docker/backend")
                 }
             }
         }
@@ -120,11 +120,10 @@ pipeline {
             steps {
                 script {
                     // Check the deployment status
-                    sh "kubectl rollout status deployment/backend-deployment --namespace=${K8S_NAMESPACE}"
+                    sh "kubectl rollout status deployment/backend --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/rabbitmq --namespace=${K8S_NAMESPACE}"
                     
-                    //
                     // Check the service status
                     sh "kubectl get services backend-service --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services mysql --namespace=${K8S_NAMESPACE}"
