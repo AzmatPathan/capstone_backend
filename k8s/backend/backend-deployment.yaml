@@ -17,3 +17,12 @@ spec:
         image: azmatpathan/backend:latest
         ports:
         - containerPort: 5000
+        env:
+        - name: DB_HOST
+          value: "mysql"
+        - name: DB_USER
+          value: "myuser"
+        - name: DB_PASSWORD
+          value: "mypassword"
+        - name: DB_NAME
+          value: "mydatabase"
