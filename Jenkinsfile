@@ -16,6 +16,17 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Authenticate with GCR') {
+            steps {
+                script {
+                    // Authenticate Docker with Google Container Registry
+                    withCredentials([file(credentialsId: "${GCP_CREDENTIALS}", variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                        sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
+                        sh 'gcloud auth configure-docker'
+                    }
+                }
+            }
+        }
         stage('Build Backend Docker Image') {
             steps {
                 script {
@@ -141,3 +152,4 @@ pipeline {
         }
     }
 }
+1
