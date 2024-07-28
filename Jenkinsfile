@@ -29,72 +29,6 @@ pipeline {
                 }
             }
         }
-        stage('Update GKE Cluster Network') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: "${GCP_CREDENTIALS}", variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                        sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
-                        sh "gcloud config set project ${GCP_PROJECT_ID}"
-                        sh "gcloud container clusters update ${GKE_CLUSTER_NAME} --region ${GKE_CLUSTER_REGION} --network ${VPC_NETWORK} --subnetwork ${SUBNETWORK}"
-                    }
-                }
-            }
-        }
-        stage('Build Docker Images') {
-            parallel {
-                stage('Build Backend Docker Image') {
-                    steps {
-                        script {
-                            def app = docker.build("${BACKEND_IMAGE}:${env.BUILD_ID}", "-f docker/backend/Dockerfile .")
-                        }
-                    }
-                }
-                stage('Build MySQL Docker Image') {
-                    steps {
-                        script {
-                            sh 'docker build -t my-mysql:latest docker/mysql'
-                        }
-                    }
-                }
-                stage('Build RabbitMQ Docker Image') {
-                    steps {
-                        script {
-                            sh 'docker build -t my-rabbitmq:latest docker/rabbitmq'
-                        }
-                    }
-                }
-            }
-        }
-        stage('Push Docker Images') {
-            parallel {
-                stage('Push Backend Docker Image') {
-                    steps {
-                        script {
-                            docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_HUB_CREDENTIALS}") {
-                                app.push("${env.BUILD_ID}")
-                                app.push("latest")
-                            }
-                        }
-                    }
-                }
-                stage('Push MySQL Docker Image') {
-                    steps {
-                        script {
-                            sh 'docker tag my-mysql:latest ${MYSQL_IMAGE}'
-                            sh 'docker push ${MYSQL_IMAGE}'
-                        }
-                    }
-                }
-                stage('Push RabbitMQ Docker Image') {
-                    steps {
-                        script {
-                            sh 'docker tag my-rabbitmq:latest ${RABBITMQ_IMAGE}'
-                            sh 'docker push ${RABBITMQ_IMAGE}'
-                        }
-                    }
-                }
-            }
-        }
         stage('Authenticate with GKE') {
             steps {
                 script {
@@ -106,52 +40,58 @@ pipeline {
                 }
             }
         }
-        stage('Create Namespace') {
-            steps {
-                script {
-                    sh """
-                    kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}
-                    """
-                }
-            }
-        }
-        stage('Deploy to Kubernetes') {
+        stage('Build Docker Images') {
             parallel {
-                stage('Deploy Backend') {
+                stage('Build Backend Docker Image') {
                     steps {
                         script {
-                            sh "kubectl apply -f k8s/backend/backend-deployment.yaml --namespace=${K8S_NAMESPACE}"
-                            sh "kubectl apply -f k8s/backend/backend-service.yaml --namespace=${K8S_NAMESPACE}"
+                            def app = docker.build("${BACKEND_IMAGE}:${env.BUILD_ID}")
+                            app.push("${env.BUILD_ID}")
+                            app.push("latest")
                         }
                     }
                 }
-                stage('Deploy MySQL') {
+                stage('Build MySQL Docker Image') {
                     steps {
                         script {
-                            sh "kubectl apply -f k8s/mysql/mysql-deployment.yaml --namespace=${K8S_NAMESPACE}"
-                            sh "kubectl apply -f k8s/mysql/mysql-service.yaml --namespace=${K8S_NAMESPACE}"
+                            def mysql = docker.build("my-mysql:latest", "docker/mysql")
+                            sh 'docker tag my-mysql:latest ${MYSQL_IMAGE}'
+                            sh 'docker push ${MYSQL_IMAGE}'
                         }
                     }
                 }
-                stage('Deploy RabbitMQ') {
+                stage('Build RabbitMQ Docker Image') {
                     steps {
                         script {
-                            sh "kubectl apply -f k8s/rabbitmq/rabbitmq-deployment.yaml --namespace=${K8S_NAMESPACE}"
-                            sh "kubectl apply -f k8s/rabbitmq/rabbitmq-service.yaml --namespace=${K8S_NAMESPACE}"
+                            def rabbitmq = docker.build("my-rabbitmq:latest", "docker/rabbitmq")
+                            sh 'docker tag my-rabbitmq:latest ${RABBITMQ_IMAGE}'
+                            sh 'docker push ${RABBITMQ_IMAGE}'
                         }
                     }
                 }
             }
         }
-        stage('Verify Deployment') {
+        stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
+                    sh "kubectl apply -f k8s/backend/backend-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/backend-deployment --namespace=${K8S_NAMESPACE}"
+                }
+            }
+        }
+        stage('Deploy MySQL to Kubernetes') {
+            steps {
+                script {
+                    sh "kubectl apply -f k8s/mysql/mysql-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/mysql --namespace=${K8S_NAMESPACE}"
+                }
+            }
+        }
+        stage('Deploy RabbitMQ to Kubernetes') {
+            steps {
+                script {
+                    sh "kubectl apply -f k8s/rabbitmq/rabbitmq-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/rabbitmq --namespace=${K8S_NAMESPACE}"
-                    sh "kubectl get services backend-service --namespace=${K8S_NAMESPACE}"
-                    sh "kubectl get services mysql --namespace=${K8S_NAMESPACE}"
-                    sh "kubectl get services rabbitmq --namespace=${K8S_NAMESPACE}"
                 }
             }
         }
