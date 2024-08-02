@@ -2,6 +2,11 @@ import path from 'path';
 import express from 'express';
 import multer from 'multer';
 import db from '../config/db.js';
+import {
+  IMAGE_PROCESSED_DATA,
+  TEST_MODEL_NUMBER,
+  TEST_SERIAL_NUMBER,
+} from '../constants/image.js'
 
 const router = express.Router();
 
@@ -86,8 +91,9 @@ router.post('/', (req, res) => {
         imageId: result.insertId,
         // Adding temporary dummy data for Front-End Devs for image processing
         imageData: {
-          modelNumber: "DUMMY-6234545",
-          serialNumber: "DUMMY-1239864",
+          modelNumber: TEST_MODEL_NUMBER,
+          serialNumber: TEST_SERIAL_NUMBER,
+          data: IMAGE_PROCESSED_DATA,
         }
       });
     } catch (error) {
