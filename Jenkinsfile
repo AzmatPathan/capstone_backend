@@ -13,7 +13,7 @@ pipeline {
         MYSQL_IMAGE = 'gcr.io/capstone-430018/my-mysql:latest'
         RABBITMQ_IMAGE = 'gcr.io/capstone-430018/my-rabbitmq:latest'
     }
-     stages {
+    stages {
         stage('Checkout') {
             steps {
                 checkout scm
@@ -31,37 +31,29 @@ pipeline {
             }
         }
         stage('Manage GKE Cluster') {
-    steps {
-        script {
-            def clusterExists = sh(script: "gcloud container clusters describe ${GKE_CLUSTER_NAME} --region ${GKE_CLUSTER_REGION} --project ${GCP_PROJECT_ID}", returnStatus: true) == 0
-            if (clusterExists) {
-                echo "Cluster exists. Updating..."
-                sh """
-                    gcloud container clusters update ${GKE_CLUSTER_NAME} \
-                    --region ${GKE_CLUSTER_REGION} \
-                    --project ${GCP_PROJECT_ID} \
-                    --update-addons=HorizontalPodAutoscaling=ENABLED,HttpLoadBalancing=ENABLED \
-                    --enable-stackdriver-kubernetes
-                """
-            } else {
-                echo "Cluster does not exist. Creating..."
-                sh """
-                    gcloud container clusters create ${GKE_CLUSTER_NAME} \
-                    --region ${GKE_CLUSTER_REGION} \
-                    --enable-ip-alias \
-                    --network ${VPC_NETWORK} \
-                    --subnetwork ${SUBNETWORK} \
-                    --machine-type n1-standard-1 \
-                    --num-nodes 1 \
-                    --disk-type pd-standard \
-                    --disk-size 50 \
-                    --project ${GCP_PROJECT_ID}
-                """
+            steps {
+                script {
+                    def clusterExists = sh(script: "gcloud container clusters describe ${GKE_CLUSTER_NAME} --region ${GKE_CLUSTER_REGION} --project ${GCP_PROJECT_ID}", returnStatus: true) == 0
+                    if (clusterExists) {
+                        echo "Cluster exists. Skipping update."
+                    } else {
+                        echo "Cluster does not exist. Creating..."
+                        sh """
+                            gcloud container clusters create ${GKE_CLUSTER_NAME} \
+                            --region ${GKE_CLUSTER_REGION} \
+                            --enable-ip-alias \
+                            --network ${VPC_NETWORK} \
+                            --subnetwork ${SUBNETWORK} \
+                            --machine-type n1-standard-1 \
+                            --num-nodes 1 \
+                            --disk-type pd-standard \
+                            --disk-size 50 \
+                            --project ${GCP_PROJECT_ID}
+                        """
+                    }
+                }
             }
         }
-    }
-}
-
         stage('Authenticate with GKE') {
             steps {
                 script {
@@ -72,9 +64,7 @@ pipeline {
         stage('Create Namespace') {
             steps {
                 script {
-                    sh """
-                    kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}
-                    """
+                    sh "kubectl get namespace ${K8S_NAMESPACE} || kubectl create namespace ${K8S_NAMESPACE}"
                 }
             }
         }
