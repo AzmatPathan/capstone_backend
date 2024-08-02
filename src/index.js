@@ -31,17 +31,18 @@ const swaggerOptions = {
       title: 'Telus ITMS',
       version: '1.0.0',
     },
-    host: `localhost:${PORT}`,
+    host: 'frontend-service-ew53cd6u7q-uc.a.run.app',
     basePath: '/',
     produces: [
       "application/json",
       "application/xml"
     ],
-    schemes: ['http']
+    schemes: ['https'] // Include HTTPS scheme
   },
   basedir: __dirname, // App absolute path
   files: ['./routes/*.js'] // Path to the API handle folder
 };
+
 
 const expressSwagger = swaggerGenerator(app);
 expressSwagger(swaggerOptions);
