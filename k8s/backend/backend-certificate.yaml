@@ -1,10 +1,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: backend-certificate
+  name: backend-tls
   namespace: my-namespace
 spec:
-  secretName: backend-tls
+  secretName: backend-tls-secret
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

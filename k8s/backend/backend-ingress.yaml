@@ -10,7 +10,8 @@ spec:
   tls:
   - hosts:
     - telusitms.com
-    secretName: backend-tls
+    - www.telusitms.com
+    secretName: backend-tls-secret
   rules:
   - host: telusitms.com
     http:
