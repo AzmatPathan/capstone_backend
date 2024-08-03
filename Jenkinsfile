@@ -91,13 +91,20 @@ pipeline {
                 }
             }
         }
-       stage('Create ClusterIssuer') {
-    steps {
-        script {
-            sh 'kubectl apply -f k8s/cluster-issuer.yaml'
+        stage('Create ClusterIssuer') {
+            steps {
+                script {
+                    sh 'kubectl apply -f k8s/cluster-issuer.yaml'
+                }
+            }
         }
-    }
-}
+        stage('Create Certificate') {
+            steps {
+                script {
+                    sh 'kubectl apply -f k8s/backend/backend-certificate.yaml --namespace=${K8S_NAMESPACE}'
+                }
+            }
+        }
         stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
@@ -149,6 +156,7 @@ pipeline {
         }
         failure {
             echo 'Deployment failed!'
+            // Optional: Add cleanup or rollback steps if needed
         }
     }
 }

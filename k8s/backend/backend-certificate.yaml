@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: backend-certificate
+  namespace: my-namespace
+spec:
+  secretName: backend-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: telusitms.com
+  dnsNames:
+  - telusitms.com
+  - www.telusitms.com
