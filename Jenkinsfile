@@ -91,31 +91,13 @@ pipeline {
                 }
             }
         }
-        stage('Create ClusterIssuer') {
-            steps {
-                script {
-                    // Ensure the email used here is one you have access to for receiving Let's Encrypt notifications.
-                    sh '''
-                    kubectl apply -f - <<EOF
-                    apiVersion: cert-manager.io/v1
-                    kind: ClusterIssuer
-                    metadata:
-                      name: letsencrypt-prod
-                    spec:
-                      acme:
-                        server: https://acme-v02.api.letsencrypt.org/directory
-                        email: azmat.08pathan@gmail.com
-                        privateKeySecretRef:
-                          name: letsencrypt-prod
-                        solvers:
-                        - http01:
-                            ingress:
-                              class: nginx
-                    EOF
-                    '''
-                }
-            }
+       stage('Create ClusterIssuer') {
+    steps {
+        script {
+            sh 'kubectl apply -f k8s/cluster-issuer.yaml'
         }
+    }
+}
         stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
