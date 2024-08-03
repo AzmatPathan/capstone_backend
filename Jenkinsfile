@@ -68,6 +68,54 @@ pipeline {
                 }
             }
         }
+        stage('Install Ingress Controller') {
+            steps {
+                script {
+                    sh '''
+                    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+                    helm repo update
+                    helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --namespace $K8S_NAMESPACE --set controller.publishService.enabled=true
+                    '''
+                }
+            }
+        }
+        stage('Install Cert-Manager') {
+            steps {
+                script {
+                    sh '''
+                    kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.13.0/cert-manager.crds.yaml
+                    helm repo add jetstack https://charts.jetstack.io
+                    helm repo update
+                    helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace
+                    '''
+                }
+            }
+        }
+        stage('Create ClusterIssuer') {
+            steps {
+                script {
+                    // Ensure the email used here is one you have access to for receiving Let's Encrypt notifications.
+                    sh '''
+                    kubectl apply -f - <<EOF
+                    apiVersion: cert-manager.io/v1
+                    kind: ClusterIssuer
+                    metadata:
+                      name: letsencrypt-prod
+                    spec:
+                      acme:
+                        server: https://acme-v02.api.letsencrypt.org/directory
+                        email: azmat.08pathan@gmail.com
+                        privateKeySecretRef:
+                          name: letsencrypt-prod
+                        solvers:
+                        - http01:
+                            ingress:
+                              class: nginx
+                    EOF
+                    '''
+                }
+            }
+        }
         stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
@@ -92,6 +140,13 @@ pipeline {
                 }
             }
         }
+        stage('Apply Ingress Configuration') {
+            steps {
+                script {
+                    sh "kubectl apply -f k8s/backend/backend-ingress.yaml --namespace=${K8S_NAMESPACE}"
+                }
+            }
+        }
         stage('Verify Deployment') {
             steps {
                 script {
@@ -101,6 +156,7 @@ pipeline {
                     sh "kubectl get services backend-service --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services rabbitmq --namespace=${K8S_NAMESPACE}"
+                    sh "kubectl describe ingress backend-ingress --namespace=${K8S_NAMESPACE}"
                 }
             }
         }
