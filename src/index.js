@@ -25,6 +25,10 @@ const __dirname = dirname(__filename);
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+app.use(bodyParser.json());
+app.use(express.json());
+app.use(cookieParser());
+
 const swaggerOptions = {
   swaggerDefinition: {
     info: {
@@ -44,9 +48,6 @@ const swaggerOptions = {
   files: ['./routes/*.js'] // Path to the API handle folder
 };
 
-const expressSwagger = swaggerGenerator(app);
-expressSwagger(swaggerOptions);
-
 // CORS configuration
 const corsOptions = {
   origin: 'https://app.telusitms.com', // Allow requests from this origin
@@ -60,9 +61,17 @@ app.use(cors(corsOptions)); // Use CORS middleware with the specified options
 
 console.log('UI_URL:', process.env.UI_URL);
 
-app.use(bodyParser.json());
-app.use(express.json());
-app.use(cookieParser());
+const expressSwagger = swaggerGenerator(app);
+expressSwagger(swaggerOptions);
+
+// Simple test endpoint
+app.options('/test', cors(corsOptions), (req, res) => {
+  res.sendStatus(204);
+});
+
+app.get('/test', cors(corsOptions), (req, res) => {
+  res.json({ message: 'CORS is working' });
+});
 
 // Routes
 app.use('/api/users', userRoutes);
