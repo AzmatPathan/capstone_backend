@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
 import equipmentRoutes from './routes/equipmentRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
@@ -43,9 +44,18 @@ const swaggerOptions = {
   files: ['./routes/*.js'] // Path to the API handle folder
 };
 
-
 const expressSwagger = swaggerGenerator(app);
 expressSwagger(swaggerOptions);
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.UI_URL, // Allow requests from this origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true, // Allow credentials such as cookies and HTTP authentication
+  optionsSuccessStatus: 204 // Some legacy browsers choke on status 204
+};
+
+app.use(cors(corsOptions)); // Use CORS middleware with the specified options
 
 app.use(bodyParser.json());
 app.use(express.json());
@@ -72,7 +82,7 @@ const startServer = async () => {
     await consumeQueue('equipmentDataQueue', async (data) => {
       const { user_id, equipment_id, equipmentData } = data;
       await insertUserEquipment(user_id, equipment_id);
-      console.log(equipmentData)
+      console.log(equipmentData);
       await addEquipmentDataReview(equipmentData);
     });
 
