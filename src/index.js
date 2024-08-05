@@ -49,10 +49,11 @@ expressSwagger(swaggerOptions);
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.UI_URL, // Allow requests from this origin
+  origin: 'https://app.telusitms.com', // Allow requests from this origin
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, // Allow credentials such as cookies and HTTP authentication
-  optionsSuccessStatus: 204 // Some legacy browsers choke on status 204
+  optionsSuccessStatus: 204, // Some legacy browsers choke on status 204
+  allowedHeaders: ['Content-Type', 'Authorization'] 
 };
 
 app.use(cors(corsOptions)); // Use CORS middleware with the specified options
