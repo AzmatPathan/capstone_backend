@@ -57,6 +57,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions)); // Use CORS middleware with the specified options
 
+console.log('UI_URL:', process.env.UI_URL);
+
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(cookieParser());
