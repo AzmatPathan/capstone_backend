@@ -26,6 +26,9 @@ spec:
         - "-dir=/cloudsql"
         - "-instances=$(INSTANCE_CONNECTION_NAME)=tcp:3306"
         - "-credential_file=/secrets/service_account.json"
+        env:
+        - name: INSTANCE_CONNECTION_NAME
+          value: "capstone-430018:us-central1:telus-itms"
         volumeMounts:
         - name: cloudsql-instance-credentials
           mountPath: /cloudsql
