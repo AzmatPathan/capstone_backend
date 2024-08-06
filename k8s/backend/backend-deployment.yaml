@@ -18,17 +18,42 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.19.1
+        command:
+        - "/cloud_sql_proxy"
+        - "-dir=/cloudsql"
+        - "-instances=$(INSTANCE_CONNECTION_NAME)=tcp:3306"
+        - "-credential_file=/secrets/service_account.json"
+        volumeMounts:
+        - name: cloudsql-instance-credentials
+          mountPath: /cloudsql
+        - name: secret-volume
+          mountPath: /secrets
       containers:
       - name: backend
         image: azmatpathan/backend:latest
         ports:
-        - containerPort: 5000 # Ensure your backend listens on this port
+        - containerPort: 5000
         env:
         - name: DB_HOST
-          value: "mysql"
+          value: "/cloudsql/$(INSTANCE_CONNECTION_NAME)"
         - name: DB_USER
-          value: "myuser"
+          value: "your-cloud-sql-user"
         - name: DB_PASSWORD
-          value: "mypassword"
+          value: "your-cloud-sql-password"
         - name: DB_NAME
-          value: "mydatabase"
+          value: "itms"
+        - name: INSTANCE_CONNECTION_NAME
+          value: "capstone-430018:us-central1:telus-itms"
+        volumeMounts:
+        - name: cloudsql-instance-credentials
+          mountPath: /cloudsql
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: service-secret-key
+      - name: secret-volume
+        secret:
+          secretName: service-secret-key

@@ -10,7 +10,6 @@ pipeline {
         VPC_NETWORK = 'telus-itms'
         SUBNETWORK = 'subnet-1'
         BACKEND_IMAGE = 'azmatpathan/backend'
-        MYSQL_IMAGE = 'gcr.io/capstone-430018/my-mysql:latest'
         RABBITMQ_IMAGE = 'gcr.io/capstone-430018/my-rabbitmq:latest'
     }
     stages {
@@ -113,14 +112,6 @@ pipeline {
                 }
             }
         }
-        stage('Deploy MySQL to Kubernetes') {
-            steps {
-                script {
-                    sh "kubectl apply -f k8s/mysql/mysql-deployment.yaml --namespace=${K8S_NAMESPACE}"
-                    sh "kubectl apply -f k8s/mysql/mysql-service.yaml --namespace=${K8S_NAMESPACE}"
-                }
-            }
-        }
         stage('Deploy RabbitMQ to Kubernetes') {
             steps {
                 script {
@@ -143,7 +134,7 @@ pipeline {
                     sh "kubectl rollout status deployment/mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/rabbitmq --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services backend-service --namespace=${K8S_NAMESPACE}"
-                    sh "kubectl get services mysql --namespace=${K8S_NAMESPACE}"
+                    // sh "kubectl get services mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services rabbitmq --namespace=${K8S_NAMESPACE}"
                     sh "kubectl describe ingress backend-ingress --namespace=${K8S_NAMESPACE}"
                 }
