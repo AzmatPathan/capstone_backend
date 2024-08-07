@@ -25,7 +25,7 @@ spec:
         - containerPort: 5000
         env:
         - name: DB_HOST
-          value: "10.150.208.3"  # Use the internal IP address of your Cloud SQL instance
+          value: "10.150.208.3"
         - name: DB_USER
           value: "user"
         - name: DB_PASSWORD

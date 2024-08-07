@@ -131,10 +131,8 @@ pipeline {
             steps {
                 script {
                     sh "kubectl rollout status deployment/backend-deployment --namespace=${K8S_NAMESPACE}"
-                    // sh "kubectl rollout status deployment/mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl rollout status deployment/rabbitmq --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services backend-service --namespace=${K8S_NAMESPACE}"
-                    // sh "kubectl get services mysql --namespace=${K8S_NAMESPACE}"
                     sh "kubectl get services rabbitmq --namespace=${K8S_NAMESPACE}"
                     sh "kubectl describe ingress backend-ingress --namespace=${K8S_NAMESPACE}"
                 }
