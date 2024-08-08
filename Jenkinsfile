@@ -10,7 +10,7 @@ pipeline {
         VPC_NETWORK = 'telus-itms'
         SUBNETWORK = 'subnet-1'
         BACKEND_IMAGE = 'azmatpathan/backend'
-        RABBITMQ_IMAGE = 'gcr.io/capstone-430018/my-rabbitmq:latest'
+        RABBITMQ_IMAGE = 'gcr.io/capstone-430018/my-rabbitmq'
         GIT_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
     stages {
@@ -30,16 +30,24 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push Docker Image') {
+        stage('Build and Push Docker Images') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh "docker build -t ${BACKEND_IMAGE}:${GIT_COMMIT} ."
-                    
-                    // Push the Docker image to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                        sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
+                    // Build and push the backend Docker image
+                    dir('docker/backend') {
+                        sh "docker build -t ${BACKEND_IMAGE}:${GIT_COMMIT} ."
+                        withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                            sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
+                        }
+                    }
+                    // Build and push the RabbitMQ Docker image
+                    dir('docker/rabbitmq') {
+                        sh "docker build -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} ."
+                        withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                            sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
+                        }
                     }
                 }
             }
@@ -133,6 +141,8 @@ pipeline {
         stage('Deploy RabbitMQ to Kubernetes') {
             steps {
                 script {
+                    // Update the deployment YAML with the new Docker image tag
+                    sh "sed -i 's|image: ${RABBITMQ_IMAGE}:latest|image: ${RABBITMQ_IMAGE}:${GIT_COMMIT}|' k8s/rabbitmq/rabbitmq-deployment.yaml"
                     sh "kubectl apply -f k8s/rabbitmq/rabbitmq-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl apply -f k8s/rabbitmq/rabbitmq-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
