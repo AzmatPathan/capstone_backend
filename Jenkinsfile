@@ -11,6 +11,7 @@ pipeline {
         SUBNETWORK = 'subnet-1'
         BACKEND_IMAGE = 'azmatpathan/backend'
         RABBITMQ_IMAGE = 'gcr.io/capstone-430018/my-rabbitmq:latest'
+        GIT_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
     stages {
         stage('Checkout') {
@@ -25,6 +26,20 @@ pipeline {
                         sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
                         sh 'gcloud auth configure-docker'
                         sh "gcloud config set project ${GCP_PROJECT_ID}"
+                    }
+                }
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh "docker build -t ${BACKEND_IMAGE}:${GIT_COMMIT} ."
+                    
+                    // Push the Docker image to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
                     }
                 }
             }
@@ -107,6 +122,9 @@ pipeline {
         stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
+                    // Update the deployment YAML with the new Docker image tag
+                    sh "sed -i 's|image: ${BACKEND_IMAGE}:latest|image: ${BACKEND_IMAGE}:${GIT_COMMIT}|' k8s/backend/backend-deployment.yaml"
+
                     sh "kubectl apply -f k8s/backend/backend-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl apply -f k8s/backend/backend-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
