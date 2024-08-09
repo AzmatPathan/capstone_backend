@@ -27,6 +27,10 @@ const lastLoginUser = async (email) => {
         throw new Error('User not found');
     }
 };
+const fetchUserById = async (id) => {
+    const [rows] = await pool.query('SELECT * FROM Users WHERE user_id = ?', [id]);
+    return rows[0];
+};
 
 const createUser = async (name, email, password, role) => {
 
@@ -60,4 +64,4 @@ const deleteUserById = async (userId) => {
 };
 
 
-export { fetchUsers, fetchUser, lastLoginUser, createUser, deleteUserById } 
+export { fetchUsers, fetchUser, lastLoginUser, createUser, deleteUserById, fetchUserById } 

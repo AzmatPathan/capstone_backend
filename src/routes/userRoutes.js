@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUsers, authUser, registerUser, logoutUser, deleteUser } from '../controllers/userController.js';
+import { getAllUsers, authUser, registerUser, logoutUser, deleteUser, getUserById } from '../controllers/userController.js';
 import { admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -65,5 +65,8 @@ router.post('/logout', logoutUser);
  * @returns {Error} 500 - Server Error
  */
 router.delete('/:id', admin, deleteUser);
+
+router.route('/:id').get(getUserById);
+
 
 export default router;
