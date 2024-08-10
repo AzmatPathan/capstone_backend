@@ -34,12 +34,12 @@ pipeline {
                 script {
                     // Build and push the backend Docker image to Google Container Registry (GCR)
                     dir('docker/backend') {
-                        sh "docker build -t ${BACKEND_IMAGE}:${GIT_COMMIT} ."
+                        sh "docker build  --no-cache -t ${BACKEND_IMAGE}:${GIT_COMMIT} ."
                         sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
                     }
                     // Build and push the RabbitMQ Docker image to Google Container Registry (GCR)
                     dir('docker/rabbitmq') {
-                        sh "docker build -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} ."
+                        sh "docker build --no-cache -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} ."
                         sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
                     }
                 }
