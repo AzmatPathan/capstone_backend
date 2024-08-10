@@ -10,7 +10,6 @@ spec:
   tls:
   - hosts:
     - telus-itms.com
-    - www.telus-itms.com
     secretName: backend-tls-secret
   rules:
   - host: telus-itms.com

@@ -11,4 +11,3 @@ spec:
   commonName: telus-itms.com
   dnsNames:
   - telus-itms.com
-  - www.telus-itms.com
