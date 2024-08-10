@@ -95,6 +95,8 @@ pipeline {
                 }
             }
         }
+        /*
+        // Commenting out Cert-Manager, ClusterIssuer, and Certificate creation
         stage('Install Cert-Manager') {
             steps {
                 script {
@@ -121,6 +123,7 @@ pipeline {
                 }
             }
         }
+        */
         stage('Deploy Backend to Kubernetes') {
             steps {
                 script {
