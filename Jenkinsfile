@@ -1,6 +1,8 @@
 pipeline {
     agent any
     environment {
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'  // Docker Hub credentials ID in Jenkins
+        DOCKERHUB_USERNAME = 'your-dockerhub-username'
         GCP_CREDENTIALS = 'gcp-credentials'
         GCP_PROJECT_ID = 'my-first-project-431720'
         GKE_CLUSTER_NAME = 'backend-cluster'
@@ -8,8 +10,8 @@ pipeline {
         K8S_NAMESPACE = 'my-namespace'
         VPC_NETWORK = 'capstone-vpc'
         SUBNETWORK = 'capstone-subnet'
-        BACKEND_IMAGE = "gcr.io/${GCP_PROJECT_ID}/backend"
-        RABBITMQ_IMAGE = "gcr.io/${GCP_PROJECT_ID}/rabbitmq"
+        BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/backend"
+        RABBITMQ_IMAGE = "${DOCKERHUB_USERNAME}/rabbitmq"
         GIT_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
     stages {
@@ -24,21 +26,23 @@ pipeline {
                     withCredentials([file(credentialsId: "${GCP_CREDENTIALS}", variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
                         sh "gcloud config set project ${GCP_PROJECT_ID}"
-                        sh 'gcloud auth configure-docker gcr.io'
                     }
                 }
             }
         }
-       stage('Build and Push Docker Images') {
+        stage('Build and Push Docker Images') {
             steps {
                 script {
-                    // Build and push the backend Docker image to Google Container Registry (GCR)
-                    sh "docker build --no-cache -t ${BACKEND_IMAGE}:${GIT_COMMIT} -f docker/backend/Dockerfile ."
-                    sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
-                    
-                    // Build and push the RabbitMQ Docker image to Google Container Registry (GCR)
-                    sh "docker build --no-cache -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} -f docker/rabbitmq/Dockerfile ."
-                    sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        // Build and push the backend Docker image to Docker Hub
+                        sh "docker build --no-cache -t ${BACKEND_IMAGE}:${GIT_COMMIT} -f docker/backend/Dockerfile ."
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                        sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
+
+                        // Build and push the RabbitMQ Docker image to Docker Hub
+                        sh "docker build --no-cache -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} -f docker/rabbitmq/Dockerfile ."
+                        sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
+                    }
                 }
             }
         }
@@ -121,8 +125,7 @@ pipeline {
             steps {
                 script {
                     // Update the deployment YAML with the new Docker image tag
-                    sh "sed -i 's|image: ${BACKEND_IMAGE}:latest|image: ${BACKEND_IMAGE}:${GIT_COMMIT}|' k8s/backend/backend-deployment.yaml"
-
+                    sh "sed -i 's|image: .*|image: ${BACKEND_IMAGE}:${GIT_COMMIT}|' k8s/backend/backend-deployment.yaml"
                     sh "kubectl apply -f k8s/backend/backend-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl apply -f k8s/backend/backend-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
@@ -132,7 +135,7 @@ pipeline {
             steps {
                 script {
                     // Update the deployment YAML with the new Docker image tag
-                    sh "sed -i 's|image: ${RABBITMQ_IMAGE}:latest|image: ${RABBITMQ_IMAGE}:${GIT_COMMIT}|' k8s/rabbitmq/rabbitmq-deployment.yaml"
+                    sh "sed -i 's|image: .*|image: ${RABBITMQ_IMAGE}:${GIT_COMMIT}|' k8s/rabbitmq/rabbitmq-deployment.yaml"
                     sh "kubectl apply -f k8s/rabbitmq/rabbitmq-deployment.yaml --namespace=${K8S_NAMESPACE}"
                     sh "kubectl apply -f k8s/rabbitmq/rabbitmq-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
