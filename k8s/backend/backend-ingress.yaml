@@ -13,7 +13,7 @@ spec:
     - www.telus-itms.com
     secretName: backend-tls-secret
   rules:
-  - host: telusitms.com
+  - host: telus-itms.com
     http:
       paths:
       - path: /

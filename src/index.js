@@ -50,7 +50,7 @@ const swaggerOptions = {
 
 // CORS configuration
 const corsOptions = {
-  origin: 'https://app.telusitms.com', // Allow requests from this origin
+  origin: 'https://app.telus-itms.com', // Allow requests from this origin
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true, // Allow credentials such as cookies and HTTP authentication
   optionsSuccessStatus: 204, // Some legacy browsers choke on status 204
