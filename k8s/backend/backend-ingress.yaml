@@ -9,8 +9,8 @@ metadata:
 spec:
   tls:
   - hosts:
-    - telusitms.com
-    - www.telusitms.com
+    - telus-itms.com
+    - www.telus-itms.com
     secretName: backend-tls-secret
   rules:
   - host: telusitms.com

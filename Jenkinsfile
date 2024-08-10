@@ -1,16 +1,15 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
-        GCP_CREDENTIALS = 'gcr-credentials-file'
-        GCP_PROJECT_ID = 'capstone-430018'
-        GKE_CLUSTER_NAME = 'jenkins-cluster-1'
+        GCP_CREDENTIALS = 'gcp-credentials'
+        GCP_PROJECT_ID = 'my-first-project-431720'
+        GKE_CLUSTER_NAME = 'backend-cluster'
         GKE_CLUSTER_REGION = 'us-central1'
         K8S_NAMESPACE = 'my-namespace'
-        VPC_NETWORK = 'telus-itms'
-        SUBNETWORK = 'subnet-1'
-        BACKEND_IMAGE = 'azmatpathan/backend'
-        RABBITMQ_IMAGE = 'gcr.io/capstone-430018/my-rabbitmq'
+        VPC_NETWORK = 'capstone-vpc'
+        SUBNETWORK = 'capstone-subnet'
+        BACKEND_IMAGE = "gcr.io/${GCP_PROJECT_ID}/backend"
+        RABBITMQ_IMAGE = "gcr.io/${GCP_PROJECT_ID}/rabbitmq"
         GIT_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
     stages {
@@ -24,8 +23,8 @@ pipeline {
                 script {
                     withCredentials([file(credentialsId: "${GCP_CREDENTIALS}", variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
-                        sh 'gcloud auth configure-docker'
                         sh "gcloud config set project ${GCP_PROJECT_ID}"
+                        sh 'gcloud auth configure-docker gcr.io'
                     }
                 }
             }
@@ -33,21 +32,15 @@ pipeline {
         stage('Build and Push Docker Images') {
             steps {
                 script {
-                    // Build and push the backend Docker image
+                    // Build and push the backend Docker image to Google Container Registry (GCR)
                     dir('docker/backend') {
                         sh "docker build -t ${BACKEND_IMAGE}:${GIT_COMMIT} ."
-                        withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                            sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
-                        }
+                        sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
                     }
-                    // Build and push the RabbitMQ Docker image
+                    // Build and push the RabbitMQ Docker image to Google Container Registry (GCR)
                     dir('docker/rabbitmq') {
                         sh "docker build -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} ."
-                        withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                            sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
-                        }
+                        sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
                     }
                 }
             }

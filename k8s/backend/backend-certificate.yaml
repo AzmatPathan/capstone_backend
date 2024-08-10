@@ -8,7 +8,7 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  commonName: telusitms.com
+  commonName: telus-itms.com
   dnsNames:
-  - telusitms.com
-  - www.telusitms.com
+  - telus-itms.com
+  - www.telus-itms.com
