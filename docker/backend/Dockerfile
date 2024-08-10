@@ -4,7 +4,7 @@ FROM node:20
 # Set working directory inside the container
 WORKDIR /src
 
-# Copy package.json and package-lock.json from the root of the project to the working directory
+# Copy package.json and package-lock.json from the root of the build context to the working directory
 COPY ../../package*.json ./
 
 # Install dependencies
@@ -17,4 +17,4 @@ COPY ../../ ./
 EXPOSE 5000
 
 # Start the application
-CMD ["node", "index.js"]
+CMD ["node", "src/index.js"]

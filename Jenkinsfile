@@ -29,19 +29,16 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push Docker Images') {
+       stage('Build and Push Docker Images') {
             steps {
                 script {
                     // Build and push the backend Docker image to Google Container Registry (GCR)
-                    dir('docker/backend') {
-                        sh "docker build  --no-cache -t ${BACKEND_IMAGE}:${GIT_COMMIT} ."
-                        sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
-                    }
+                    sh "docker build --no-cache -t ${BACKEND_IMAGE}:${GIT_COMMIT} -f docker/backend/Dockerfile ."
+                    sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
+                    
                     // Build and push the RabbitMQ Docker image to Google Container Registry (GCR)
-                    dir('docker/rabbitmq') {
-                        sh "docker build --no-cache -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} ."
-                        sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
-                    }
+                    sh "docker build --no-cache -t ${RABBITMQ_IMAGE}:${GIT_COMMIT} -f docker/rabbitmq/Dockerfile ."
+                    sh "docker push ${RABBITMQ_IMAGE}:${GIT_COMMIT}"
                 }
             }
         }
