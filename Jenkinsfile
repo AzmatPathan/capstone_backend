@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'  // Docker Hub credentials ID in Jenkins
-        DOCKERHUB_USERNAME = 'your-dockerhub-username'
+        DOCKERHUB_USERNAME = 'azmatpathan'
         GCP_CREDENTIALS = 'gcp-credentials'
         GCP_PROJECT_ID = 'my-first-project-431720'
         GKE_CLUSTER_NAME = 'backend-cluster'
