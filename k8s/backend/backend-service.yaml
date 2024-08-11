@@ -8,6 +8,6 @@ spec:
     app: backend
   ports:
   - protocol: TCP
-    port: 443          # Expose HTTPS port
-    targetPort: 5000   # The port your backend listens on
+    port: 80          # Expose HTTP port
+    targetPort: 5000  # The port your backend listens on
   type: LoadBalancer
