@@ -101,10 +101,9 @@ router.post('/', (req, res) => {
         message: 'Image uploaded and saved to database',
         imageId: result.insertId,
         imageData: {
-          model_number: resultData?.requiredData?.model_number || TEST_MODEL_NUMBER,
-          serial_number: resultData?.requiredData?.serial_number || TEST_SERIAL_NUMBER,
+          model_number: resultData?.requiredData?.model_number || '',
           manufacturer: resultData?.requiredData?.manufacturer || '',
-          data: IMAGE_PROCESSED_DATA,
+          data: resultData?.rawData,
         }
       });
     } catch (error) {
