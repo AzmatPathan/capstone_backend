@@ -6,10 +6,10 @@ pipeline {
         GCP_CREDENTIALS = 'gcp-credentials'
         GCP_PROJECT_ID = 'my-first-project-431720'
         REGION = 'us-central1'  // Cloud Run region
-        RABBITMQ_IMAGE = "${DOCKERHUB_USERNAME}/rabbitmq"
+        // RABBITMQ_IMAGE = "${DOCKERHUB_USERNAME}/rabbitmq"
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/backend"
         GIT_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-        RABBITMQ_URL = "https://rabbitmq-service-${GIT_COMMIT}-${REGION}.run.app"  // Cloud Run URL for RabbitMQ
+        // RABBITMQ_URL = "https://rabbitmq-service-${GIT_COMMIT}-${REGION}.run.app"  // Cloud Run URL for RabbitMQ
     }
     stages {
         stage('Checkout') {
@@ -27,6 +27,7 @@ pipeline {
                 }
             }
         }
+        /*
         stage('Build and Push RabbitMQ Image') {
             steps {
                 script {
@@ -48,6 +49,7 @@ pipeline {
                 }
             }
         }
+        */
         stage('Build and Push Backend Image') {
             steps {
                 script {
@@ -65,7 +67,6 @@ pipeline {
                         --platform managed \
                         --region ${REGION} \
                         --allow-unauthenticated \
-                        --set-env-vars RABBITMQ_URL=${RABBITMQ_URL}
                     """
                 }
             }
