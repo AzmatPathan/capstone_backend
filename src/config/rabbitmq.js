@@ -1,6 +1,13 @@
 import amqp from 'amqplib';
 
-const RABBITMQ_URL = 'amqp://rabbitmq'; // RabbitMQ service name in Kubernetes
+// Fetch RabbitMQ connection details from environment variables
+const RABBITMQ_HOST = process.env.RABBITMQ_HOST || 'localhost';
+const RABBITMQ_PORT = process.env.RABBITMQ_PORT || '5672';
+const RABBITMQ_USERNAME = process.env.RABBITMQ_USERNAME || 'myuser';
+const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD || 'mypassword';
+
+// Construct the RabbitMQ URL
+const RABBITMQ_URL = `amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}`;
 
 let connection, channel;
 
