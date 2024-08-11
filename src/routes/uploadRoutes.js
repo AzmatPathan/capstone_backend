@@ -2,11 +2,15 @@ import path from 'path';
 import express from 'express';
 import multer from 'multer';
 import db from '../config/db.js';
+import { fileURLToPath } from 'url';
 import {
   IMAGE_PROCESSED_DATA,
   TEST_MODEL_NUMBER,
   TEST_SERIAL_NUMBER,
 } from '../constants/image.js'
+
+import { getImageText } from '../helpers/cloud/google/ocr.js';
+import { processGcpVertexData } from '../helpers/image/imageDataHandler.js';
 
 const router = express.Router();
 
@@ -72,6 +76,10 @@ const uploadSingleImage = upload.single('image');
  * @returns {Error} 500 - Internal server error
  * @consumes multipart/form-data
  */
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 router.post('/', (req, res) => {
   uploadSingleImage(req, res, async function (err) {
     if (err) {
@@ -81,17 +89,21 @@ router.post('/', (req, res) => {
 
     const { equipment_id, description, image } = req.body;
     const imageUrl = `/uploads/${image}`;
+    const imagePath = path.join(__dirname, `../../${req.file.path}`);
+    const imageData = await getImageText(imagePath);
+    const resultData = processGcpVertexData(imageData);
 
     try {
       // Save the image details to the database
       const result = await db.query('INSERT INTO Images (equipment_id, image_url, description) VALUES (?, ?, ?)', [equipment_id, imageUrl, description]);
+
       res.status(200).send({
         message: 'Image uploaded and saved to database',
         imageId: result.insertId,
-        // Adding temporary dummy data for Front-End Devs for image processing
         imageData: {
-          modelNumber: TEST_MODEL_NUMBER,
-          serialNumber: TEST_SERIAL_NUMBER,
+          model_number: resultData?.requiredData?.model_number || TEST_MODEL_NUMBER,
+          serial_number: resultData?.requiredData?.serial_number || TEST_SERIAL_NUMBER,
+          manufacturer: resultData?.requiredData?.manufacturer || '',
           data: IMAGE_PROCESSED_DATA,
         }
       });

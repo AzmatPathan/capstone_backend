@@ -33,7 +33,14 @@ export async function generateTextFromInput(text) {
     model: 'gemini-1.5-flash-001',
   });
 
-  const result = await generativeModel.generateContent(`return me json data after normalizing below raw data \n` + text);
-  const contentResponse = await result.response;
-  return contentResponse?.candidates[0]?.content?.parts[0];
+  const meaningfulDataQuery = "3 keys model_number, serial_number and manufacturer must have values ";
+  const convertTextQuery = "Convert below raw text to meaningful JSON object representation of the text, with no formatting, escaping, or additional characters. Output should be a single valid JSON object with syntax correct."
+
+  const requiredData = await generativeModel.generateContent(meaningfulDataQuery + convertTextQuery + `\n` + text);
+  const rawData = await generativeModel.generateContent(convertTextQuery + `\n` + text);
+  const cleanedRequiredDataString = requiredData?.response?.candidates[0]?.content?.parts[0]?.text?.trim();
+  return {
+    requiredData: JSON.parse(cleanedRequiredDataString),
+    rawData: rawData?.response?.candidates[0]?.content?.parts[0].text,
+  };
 }
