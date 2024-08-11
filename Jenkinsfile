@@ -5,29 +5,27 @@ pipeline {
         DOCKERHUB_USERNAME = 'azmatpathan'
         GCP_CREDENTIALS = 'gcp-credentials'
         GCP_PROJECT_ID = 'my-first-project-431720'
-        CLOUD_RUN_SERVICE_NAME = 'backend-service'  // Cloud Run Service Name
-        CLOUD_RUN_REGION = 'us-central1'
+        GKE_CLUSTER_NAME = 'backend-cluster'
+        GKE_CLUSTER_REGION = 'us-central1'
+        K8S_NAMESPACE = 'my-namespace'
+        VPC_CONNECTOR = 'my-vpc-connector' // VPC connector name for Cloud Run
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/backend"
+        RABBITMQ_IMAGE = "${DOCKERHUB_USERNAME}/rabbitmq"
         GIT_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        RABBITMQ_URL = 'amqp://rabbitmq-service'
     }
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        stage('Authenticate with GCP') {
+        // Steps to build and deploy RabbitMQ to GKE
+        stage('Deploy RabbitMQ to GKE') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: "${GCP_CREDENTIALS}", variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                        sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
-                        sh "gcloud config set project ${GCP_PROJECT_ID}"
-                        sh "gcloud config set run/region ${CLOUD_RUN_REGION}"
-                    }
+                    sh "kubectl apply -f k8s/rabbitmq/rabbitmq-deployment.yaml --namespace=${K8S_NAMESPACE}"
+                    sh "kubectl apply -f k8s/rabbitmq/rabbitmq-service.yaml --namespace=${K8S_NAMESPACE}"
                 }
             }
         }
-        stage('Build and Push Docker Images') {
+        // Steps to build and deploy Backend to Cloud Run
+        stage('Deploy Backend to Cloud Run') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -36,37 +34,27 @@ pipeline {
                         sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
                         sh "docker push ${BACKEND_IMAGE}:${GIT_COMMIT}"
                     }
-                }
-            }
-        }
-        stage('Deploy to Cloud Run') {
-            steps {
-                script {
-                    sh '''
-                    gcloud run deploy $CLOUD_RUN_SERVICE_NAME \
-                        --image gcr.io/$GCP_PROJECT_ID/$BACKEND_IMAGE:$GIT_COMMIT \
+
+                    // Deploy to Cloud Run
+                    sh """
+                    gcloud run deploy backend-service \
+                        --image ${BACKEND_IMAGE}:${GIT_COMMIT} \
                         --platform managed \
-                        --region $CLOUD_RUN_REGION \
-                        --allow-unauthenticated
-                    '''
-                }
-            }
-        }
-        stage('Verify Deployment') {
-            steps {
-                script {
-                    sh "gcloud run services describe $CLOUD_RUN_SERVICE_NAME --region $CLOUD_RUN_REGION --platform managed"
+                        --region ${GKE_CLUSTER_REGION} \
+                        --allow-unauthenticated \
+                        --vpc-connector ${VPC_CONNECTOR} \
+                        --set-env-vars RABBITMQ_URL=${RABBITMQ_URL}
+                    """
                 }
             }
         }
     }
     post {
         success {
-            echo 'Deployment to Cloud Run succeeded!'
+            echo 'Deployment succeeded!'
         }
         failure {
             echo 'Deployment failed!'
-            // Optional: Add cleanup or rollback steps if needed
         }
     }
 }
