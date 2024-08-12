@@ -28,19 +28,29 @@ npm start
 >       API - http://localhost:5000/api/clouds/getImageTranslation?ImageName=IMG_3035.JPG
 
 
+## GCP services deployment or local
 
->For GCP services deployment or local
+1. **Go to GCP console**
+2. **Create your project**
+3. **Create project keys file as a `.json` extension to authenticate APIs**
+4. **Add credentials to `keys.json` file in the root of the `capstone_backend` directory**
 
--Step 1: Go to [GCP console](https://console.cloud.google.com/)
--Step 2: Create your project.
--Step 3: Create project keys file as json extension to authenticate apis.
--Step 4: Add credentials to keys.json file in root of [capstone_backend directory](https://github.com/AzmatPathan/capstone_backend/blob/main/keys.json)
+5. **Go to Vertex AI API enable steps**
+   - Enable the Vertex AI API
+     
+6. **Similarly, enable the Cloud Vision API for your project**
 
--Step 5: Go to [vertex API enable steps](https://cloud.google.com/vertex-ai/docs/start/cloud-environment)
--Step 6: Enable the Vertex AI API
--Step 7: Similarly enable [cloud vision api](https://console.cloud.google.com/marketplace/product/google/vision.googleapis.com?) for you project
--Step 8: Add Key to system profile
-    -nano ~/.bashrc
-    -export GOOGLE_APPLICATION_CREDENTIALS="/path/to/file/service-account-key.json"
-    -source ~/.bashrc
+6. **Add Key to system profile**
+   - Open the terminal and edit your `.bashrc` file:
+     ```bash
+     nano ~/.bashrc
+     ```
+   - Add the following line:
+     ```bash
+     export GOOGLE_APPLICATION_CREDENTIALS="/path/to/file/service-account-key.json"
+     ```
+   - Save the file and reload the shell:
+     ```bash
+     source ~/.bashrc
+     ```
 
