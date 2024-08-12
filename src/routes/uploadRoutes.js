@@ -103,6 +103,7 @@ router.post('/', (req, res) => {
         imageId: result.insertId,
         imageData: {
           model_number: resultData?.requiredData?.model_number || '',
+          serial_number: resultData?.requiredData?.serial_number || '',
           manufacturer: resultData?.requiredData?.manufacturer || '',
           data: resultData?.rawData,
         }
